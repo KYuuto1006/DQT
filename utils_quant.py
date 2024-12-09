@@ -15,7 +15,6 @@ def weight_quant_n(weight, num_bits=3):
     weight = weight.float()
     Qn = -2 ** (num_bits - 1)
     Qp = 2 ** (num_bits - 1) - 1
-    #Qp = 2 ** (num_bits - 1)
     s =  Qp / weight.abs().mean().clamp(min=1e-5)
     result = (weight * s).round().clamp(Qn, Qp) / s
     assert torch.isnan(result).sum() == 0

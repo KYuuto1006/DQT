@@ -6,58 +6,7 @@ import math
 from utils_quant import weight_quant, activation_quant
 import copy
 
-# input x(tensor fp32), return result(tensor 8 bits in fp32)
-# def stochastic_rounding(x, ori_x, num_bits=1):
-#     dtype = x.dtype
-#     x = x.float()
-#     s = 1 / ori_x.max()
-#     x = x * s
-#     ori_x = ori_x * s
-#     d = x - ori_x  
-#     if d.max() <= 1 and d.min() >= -1:
-#         bernoulli = torch.bernoulli(d.abs())
-#     else:
-#         d = torch.clamp(d, -1, 1)
-#         bernoulli = torch.bernoulli(d.abs())
-#     assert d.max() <= 1 and d.min() >= -1
-#     ori_x = torch.where((bernoulli > 0) & (d > 0) & (ori_x < 1), ori_x + 1, ori_x)
-#     ori_x = torch.where((bernoulli > 0) & (d < 0) & (ori_x > -1), ori_x - 1, ori_x)
-#     result = ori_x / s
-#     return result.type(dtype)
-        
-
-    # for i in range(len(bernoulli)):
-    #     for j in range(len(bernoulli[i])):
-    #         if bernoulli[i][j] == 0:
-    #             continue
-    #         if bernoulli[i][j] > 0 and d[i][j] > 0:
-    #             ori_x[i][j] = ori_x[i][j] + 1 if ori_x[i][j] < 1 else ori_x[i][j]
-    #         if bernoulli[i][j] > 0 and d[i][j] < 0:
-    #             ori_x[i][j] = ori_x[i][j] - 1 if ori_x[i][j] > -1 else ori_x[i][j]
-
-# def stochastic_rounding_2(x, ori_x, num_bits=1):
-#     dtype = x.dtype
-#     x = x.float()
-#     s = 1 / ori_x.max()
-#     x = x * s
-#     ori_x = ori_x * s
-#     d = x - ori_x  
-#     if d.max() <= 1 and d.min() >= -1:
-#         bernoulli = torch.bernoulli(d.abs())
-#     else:
-#         d = torch.clamp(d, -1, 1)
-#         bernoulli = torch.bernoulli(d.abs())
-#     assert d.max() <= 1 and d.min() >= -1
-#     #avg_abs_d = d.abs().mean()
-#     threshold = 0.8
-#     ori_x = torch.where((bernoulli > 0) & (d >= threshold) & (ori_x < 0), ori_x + 2, ori_x)
-#     ori_x = torch.where((bernoulli > 0) & (threshold > d) & (d > 0) & (ori_x < 1), ori_x + 1, ori_x)
-#     ori_x = torch.where((bernoulli > 0) & (d <= (-threshold)) & (ori_x > 0), ori_x - 2, ori_x)
-#     ori_x = torch.where((bernoulli > 0) & (-threshold < d) & (d < 0) & (ori_x > -1), ori_x - 1, ori_x)
-#     result = ori_x / s
-#     return result.type(dtype)
-
-def stochastic_rounding_new(x, ori_x, num_bits=1):
+def stochastic_rounding_ternary(x, ori_x, num_bits=1):
     dtype = x.dtype
     x = x.float()
     s = 1 / ori_x.max()
@@ -77,7 +26,6 @@ def stochastic_rounding_n(x, ori_x, num_bits=3):
     x = x.float()
     Qn = -2 ** (num_bits - 1)
     Qp = 2 ** (num_bits - 1) - 1
-    #Qp = 2 ** (num_bits - 1)
     s = Qp / ori_x.max()
     x = x * s
     ori_x = ori_x * s
@@ -224,8 +172,8 @@ class MyAdamW(torch.optim.Optimizer):
                 if group["weight_decay"] > 0.0:
                     p.add_(p, alpha=(-group["lr"] * group["weight_decay"]))
                     
-                #p.data = stochastic_rounding_new(p, ori_p)
-                p.data = stochastic_rounding_n(p, ori_p, num_bits=4)
+                #p.data = stochastic_rounding_ternary(p, ori_p)
+                p.data = stochastic_rounding_n(p, ori_p, num_bits=3)
 
         return loss
        

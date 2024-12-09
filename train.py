@@ -111,7 +111,6 @@ training_args = TrainingArguments(
     gradient_accumulation_steps=1,
     eval_steps=0.2,
     save_steps=0.2,
-    #logging_steps=0.001,
     logging_steps=1,
     learning_rate=5e-4,
     weight_decay=0.01,
@@ -120,14 +119,15 @@ training_args = TrainingArguments(
     per_device_eval_batch_size=64,
     seed=42,
     fp16=True,
-    #max_steps=160000,
 )
 
-#optimizer = transformers.AdamW(model.parameters(), weight_decay=0.01, lr=1e-5)
+
 for param in model.parameters():
-    param.data = weight_quant_n(param.data, num_bits=4)
-    
+    param.data = weight_quant_n(param.data, num_bits=3)
+
+#optimizer = transformers.AdamW(model.parameters(), weight_decay=args.weight_decay, lr=args.learning_rate)
 optimizer = MyAdamW(model.parameters(), weight_decay=training_args.weight_decay, lr=training_args.learning_rate)
+
 #scheduler = transformers.get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=160000)
 scheduler = transformers.get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=2000, num_training_steps=55670)
 #scheduler = transformers.get_constant_schedule_with_warmup(optimizer, num_warmup_steps=2000)
