@@ -10,4 +10,6 @@ Install the required libraries by `pip install -r requirements.txt`.
 ## Training
 Prepare your huggingface access token and output directory in `train.py`.
 
+Before training, please ensure that the bit width for stochastic rounding and initialization are the same. By default, we set them to 3 bits.
+
 We use accelerator to do the multiple GPU training. Example execution command `CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --multi_gpu --mixed_precision=fp16 train.py`
