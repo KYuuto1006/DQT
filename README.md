@@ -1,4 +1,6 @@
 # Test Code for Direct Quantized Training (DQT)
+Code for paper: Direct Quantized Training of Language Models with Stochastic Rounding (https://arxiv.org/abs/2412.04787).
+
 We follow the code from https://huggingface.co/1bitLLM/bitnet_b1_58-large/tree/main. 
 
 ## Installation
