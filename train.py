@@ -145,6 +145,3 @@ trainer = Trainer(
 model, trainer = accelerator.prepare(model, trainer)
 
 trainer.train()
-metrics = trainer.state.log_history
-with open(f"{training_args.logging_dir}/training_metrics.json", "w") as f:
-    json.dump(metrics, f)
